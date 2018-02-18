@@ -15,6 +15,15 @@
       <name>The Library Code GmbH</name>
       <url>https://www.the-library-code.de</url>
    </organization>
+   <developers>
+       <developer>
+           <name>Pascal-Nicolas Becker</name>
+           <email>pascal at the dash library dash code dot de</email>
+           <organization>The Library Code GmbH</organization>
+           <organizationUrl>https://www.the-library-code.de</organizationUrl>
+           <timezone>Europe/Berlin</timezone>
+       </developer>
+   </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,11 +41,52 @@
         <url>git@github.com:the-library-code/identifiers-enduring-submission.git</url>
     </scm>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
       <!-- Define Maven Plugin Settings that should be inherited to ALL submodule POMs.
            (NOTE: individual POMs can override specific settings). -->
       <pluginManagement>
           <plugins>
+                <!-- Use to enforce a particular version of Java and ensure no conflicting dependencies -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.4.1</version>
+                    <executions>
+                        <execution>
+                            <id>enforce-java</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireJavaVersion>
+                                        <version>${java.version}</version>
+                                    </requireJavaVersion>
+                                </rules>
+                            </configuration>
+                        </execution>
+                        <!-- Make sure that we do not have conflicting dependencies-->
+                        <execution>
+                            <id>enforce-versions</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <DependencyConvergence />
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            <!-- Used to compile all Java classes -->
               <plugin>
                   <artifactId>maven-compiler-plugin</artifactId>
                   <version>3.1</version>
@@ -45,6 +95,7 @@
                     <target>${java.version}</target>
                   </configuration>
               </plugin>
+                <!-- Used to package all JARs -->
               <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -58,6 +109,7 @@
                     </archive>
                 </configuration>
               </plugin>
+                <!-- Used to package all WARs -->
               <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -72,11 +124,36 @@
                     </archive>
                 </configuration>
              </plugin>
+                <!-- Used to validate License Headers (see build process) -->
              <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <version>2.6</version>
              </plugin>
+                <!-- Used to generate a new release via Sonatype (see release profile below). -->
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>1.6.7</version>
+                </plugin>
+                <!-- Used to generate JavaDocs for new releases (see release profile below). -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.3</version>
+                </plugin>
+                <!-- Used to generate source JARs for new releases (see release profile below). -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+                <!-- Used to sign new releases via GPG (see release profile below). -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.6</version>
+                </plugin>
           </plugins>
       </pluginManagement>
 
@@ -152,10 +229,83 @@
       </plugins>
    </build>
    
-         <modules>
-             <module>api</module>
-             <module>jspui</module>
-         </modules>
+   <!--
+        Activate javadoc, code-signing and sonatype stuff only when releaseing
+        new versions.
+    -->
+        <profiles>
+            <profile>
+                <id>release</id>
+                <activation>
+                    <activeByDefault>false</activeByDefault>
+                </activation>
+                <modules>
+                    <module>api</module>
+                    <module>jspui</module>
+                </modules>
+                <build>
+                    <plugins>
+                        <!-- Used to generate a new release via Sonatype. -->
+                        <plugin>
+                            <groupId>org.sonatype.plugins</groupId>
+                            <artifactId>nexus-staging-maven-plugin</artifactId>
+                            <extensions>true</extensions>
+                            <configuration>
+                                <serverId>ossrh</serverId>
+                                <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                                <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                            </configuration>
+                        </plugin>
+                        <!-- Used to generate JavaDocs for new releases. -->
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>attach-javadocs</id>
+                                    <goals>
+                                        <goal>aggregate-jar</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <!-- Used to generate source JARs for new releases. -->
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-source-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>attach-sources</id>
+                                    <goals>
+                                        <goal>jar-no-fork</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <!-- Used to sign new releases via GPG. -->
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-gpg-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>sign-artifacts</id>
+                                    <phase>verify</phase>
+                                    <goals>
+                                        <goal>sign</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </build>
+            </profile>
+        </profiles>
+
+        <!-- Allways activate both modules. -->
+        <modules>
+            <module>api</module>
+            <module>jspui</module>
+        </modules>
 
    <!--
       Dependency management provides a means to control which
