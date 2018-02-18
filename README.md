@@ -4,17 +4,19 @@
 
 # Persistent identifiers enduring Submission
 
-This is an addition to [DSpace](http://www.dspace.org) (on github [@DSpace/DSpace](https://github.com/DSpace/DSpace)) to show persistent identifiers enduring the submission of any new item. It currently supports DSpace's JSPUI in version 5.8 only, but it should be simple to be ported to XMLUI or DSpace's version 6.x. If you need help porting it, please don't hesitate to contact [The Library Code](https://www.the-library-code.de). If you port it yourself, we are grateful if you create a pull request.
+This is an addition to [DSpace](http://www.dspace.org) (on github [@DSpace/DSpace](https://github.com/DSpace/DSpace)) to show persistent identifiers enduring the submission of any new item. This enables submitters to add recommendations on how to cite an item into the item's files.
+
+Currently DSpace's JSPUI in version 5.8 is supported only, but it should be simple to port this add-on to XMLUI or DSpace's version 6.x. If you need help porting it, please don't hesitate to contact [The Library Code](https://www.the-library-code.de). If you port it yourself, we are grateful if you create a pull request.
 
 ## Contributors and License
 
 DSpace source code is freely available under a standard [BSD 3-Clause license](https://opensource.org/licenses/BSD-3-Clause), so is the source code of this add-on. The full license is available at http://www.dspace.org/license/.
 
-This addion was developped by [The Library Code](https://www.the-library-code.de) with the support of [Technische Universität Hamburg](https://www.tuhh.de).
+This add-on was developped by [The Library Code](https://www.the-library-code.de) with the support of [Technische Universität Hamburg](https://www.tuhh.de).
 
 ## Branches
 
-We will add one branch per supported version. Currently DSpace 5.8 is the only supported version yet: [dspace-5.8-addition](https://github.com/the-library-code/identifiers-enduring-submission/tree/dspace-5.8-addition).
+We will add one branch per supported version. Currently DSpace 5.8 is the only supported version: [dspace-5.8-addition](https://github.com/the-library-code/identifiers-enduring-submission/tree/dspace-5.8-addition).
 
 ## Installation
 
@@ -22,9 +24,9 @@ To install this add-on, you will need to know how to compile and update DSpace. 
 
 ### Install the add-on by changing two poms and the message catalog
 
-To install the update using maven's capability to automatically download and include all necessary files, you need change two pom files and the message catalog.
+To install this add-on using maven's capability to automatically download and include all necessary files, you need to change two pom files and the message catalog.
 
-In the file `[dspace-source]/dspace/modules/additions/pom.xml` you will find a section `<dependencies>...</dependencies>`. At the end of the section, right before the closing tag, you add the following lines:
+At the end of the file `[dspace-source]/dspace/modules/additions/pom.xml` you will find a section `<dependencies>...</dependencies>`. At the end of this section, right before the closing tag, you need to add the following lines:
 
 <pre>
   &lt;dependency&gt;
@@ -35,7 +37,7 @@ In the file `[dspace-source]/dspace/modules/additions/pom.xml` you will find a s
   &lt;/dependency&gt;
 </pre>
 
-In the file `[dspace-source]/dspace/modules/jspui/pom.xml` you will find a section `<dependencies>...</dependencies>`. At the end of the section, right before the closing tag, you add the following lines:
+At the end of the file `[dspace-source]/dspace/modules/jspui/pom.xml` you will find a section `<dependencies>...</dependencies>`. At the end of this section, right before the closing tag, you need to add the following lines:
 
 <pre>
   &lt;dependency&gt;
@@ -58,7 +60,7 @@ Then you change your configuration as described below, re-compile and update DSp
 
 ### Installing the add-on by copying its code into your overlays
 
-Copy the files within the [jspui/src](https://github.com/the-library-code/identifiers-enduring-submission/tree/dspace-5.8-addition/jspui/src)- and [api/src](https://github.com/the-library-code/identifiers-enduring-submission/tree/dspace-5.8-addition/api/src)-directory into your overlays (`[dspace-src]/dspace/modules/additions/src/...` and `[dspace-src]/dspace/modules/jspui/src/...`). Please pay attention to not overwrite locally changed files. Add the content of the file [additional-Messages.properties](https://github.com/the-library-code/identifiers-enduring-submission/blob/dspace-5.8-addition/additional-Messages.properties) to your message catalog. Your message catalog is located either under `[dspace-src]/dspace/modules/jspui/src/main/resources/Messages.properties` or `[dspace-src]/dspace-api/src/main/resources/Messages.properties`. Change your configuration as described in the following section of this readme, recompile and update DSpace, and restart Tomcat to finish the installation.
+Copy the files within the directories [jspui/src](https://github.com/the-library-code/identifiers-enduring-submission/tree/dspace-5.8-addition/jspui/src) and [api/src](https://github.com/the-library-code/identifiers-enduring-submission/tree/dspace-5.8-addition/api/src) into your overlays (`[dspace-src]/dspace/modules/additions/src/...` and `[dspace-src]/dspace/modules/jspui/src/...`). Please pay attention to not overwrite locally changed files. Add the content of the file [additional-Messages.properties](https://github.com/the-library-code/identifiers-enduring-submission/blob/dspace-5.8-addition/additional-Messages.properties) to your message catalog. Your message catalog is located either under `[dspace-src]/dspace/modules/jspui/src/main/resources/Messages.properties` or `[dspace-src]/dspace-api/src/main/resources/Messages.properties`. Change your configuration as described in the following section of this readme, recompile and update DSpace, and restart Tomcat to finish the installation.
 
 This add-on added the following files:
 
@@ -70,7 +72,7 @@ This add-on added the following files:
 
 ## Configuration
 
-To use this add-on you will have to change the configuration of DSpace's submission process. Read this [page in DSpace's documentation](https://wiki.duraspace.org/display/DSDOC5x/Submission+User+Interface). You will have to add two steps at the point in the submission process where the identifiers should be shown. We recommend to do this after the items are described and before any upload step. To do so, you need to change the file `item-submission.xml` in your configuration. The lines to add are listed below this paragraph. We also added an example to [config/item-submission.xml](https://github.com/the-library-code/identifiers-enduring-submission/blob/dspace-5.8-addition/config/item-submission.xml#L210-L226).
+To use this add-on you will have to change the configuration of DSpace's submission process. You can find detailled information in [this section of the DSpace manual](https://wiki.duraspace.org/display/DSDOC5x/Submission+User+Interface). You will have to add two steps at the point in the submission process where the identifiers should be shown. We recommend to do this after the items are described and before any upload step. To do so, you need to change the file `item-submission.xml` in your configuration. The lines to add are listed below this paragraph. We also added an example to [config/item-submission.xml](https://github.com/the-library-code/identifiers-enduring-submission/blob/dspace-5.8-addition/config/item-submission.xml#L210-L226).
 
 <pre>
  &lt;step&gt;
