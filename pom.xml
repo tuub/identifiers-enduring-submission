@@ -4,7 +4,7 @@
    <groupId>de.the-library-code.dspace</groupId>
    <artifactId>addon-identifiers-enduring-submission</artifactId>
    <packaging>pom</packaging>
-   <version>5.8.1-SNAPSHOT</version>
+   <version>6.0-SNAPSHOT</version>
    <name>DSpace Addon: Identifiers enduring submission</name>
    <description>
    	This is an addon to DSpace to mint and list persistent identifiers enduring the submission of new items.
@@ -32,7 +32,7 @@
         <!-- 'root.basedir' is the path to the root [dspace-src] dir. It must be redefined by each child POM,
              as it is used to reference the LICENSE_HEADER and *.properties file(s) in that directory. -->
         <root.basedir>${basedir}</root.basedir>
-        <dspace.version>5.8</dspace.version>
+        <dspace.version>[6.0, )</dspace.version>
     </properties>
 
     <scm>

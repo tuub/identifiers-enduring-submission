@@ -17,17 +17,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt"
            prefix="fmt" %>
 
-<%@ page import="javax.servlet.jsp.jstl.fmt.LocaleSupport" %>
-
-<%@ page import="org.dspace.core.Context" %>
-<%@ page import="org.dspace.app.webui.servlet.SubmissionController" %>
 <%@ page import="org.dspace.app.util.SubmissionInfo" %>
+<%@ page import="org.dspace.app.webui.servlet.SubmissionController" %>
 <%@ page import="org.dspace.app.webui.util.UIUtil" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.dspace.core.Context" %>
+<%@ page import="org.dspace.services.factory.DSpaceServicesFactory" %>
 <%@ page import="org.dspace.submit.AbstractProcessingStep" %>
-<%@ page import="java.util.List" %>
-<%@ page import="org.dspace.core.ConfigurationManager" %>
+
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+
 <%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.List" %>
 
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
@@ -45,20 +45,25 @@
     String handle = StringUtils.trim((String) request.getAttribute("handle"));
     List<String> otherIdentifiers = (List<String>) request.getAttribute("other_identifiers");
 
-    String showIdentifiers = ConfigurationManager.getProperty("webui.submission.list-identifiers");
+    String showIdentifiers = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("webui.submission.list-identifiers");
+    
     if (StringUtils.isEmpty(showIdentifiers))
     {
         showIdentifiers = "all";
     }
+    
     boolean showDOIs = false;
     boolean showHandles = false;
     boolean showOtherIdentifiers = false;
+    
     if (StringUtils.containsIgnoreCase(showIdentifiers, "all"))
     {
         showDOIs = true;
         showHandles = true;
         showOtherIdentifiers = true;
-    } else {
+    } 
+    else 
+    {
         if (StringUtils.containsIgnoreCase(showIdentifiers, "doi"))
         {
             showDOIs = true;
