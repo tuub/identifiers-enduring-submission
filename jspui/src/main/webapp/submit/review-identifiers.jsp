@@ -15,33 +15,23 @@
   --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
-<%@page import="org.dspace.core.ConfigurationManager"%>
-<%@page import="org.dspace.authorize.AuthorizeManager"%>
-<%@page import="java.util.Date"%>
-<%@page import="org.dspace.authorize.ResourcePolicy"%>
-<%@page import="java.util.List"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+
 <%@ page import="org.dspace.app.webui.servlet.SubmissionController" %>
 <%@ page import="org.dspace.app.util.SubmissionInfo" %>
 <%@ page import="org.dspace.app.webui.util.UIUtil" %>
-<%@ page import="org.dspace.content.Bitstream" %>
-<%@ page import="org.dspace.content.BitstreamFormat" %>
 <%@ page import="org.dspace.content.Item" %>
 <%@ page import="org.dspace.core.Context" %>
-<%@ page import="org.dspace.core.Utils" %>
-
-<%@ page import="javax.servlet.jsp.jstl.fmt.LocaleSupport" %>
-<%@ page import="javax.servlet.jsp.PageContext" %>
-<%@ page import="java.util.LinkedList" %>
-<%@ page import="org.dspace.identifier.IdentifierService" %>
-<%@ page import="org.dspace.utils.DSpace" %>
-<%@ page import="org.dspace.identifier.Handle" %>
+<%@ page import="org.dspace.handle.factory.HandleServiceFactory" %>
 <%@ page import="org.dspace.identifier.DOI" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.dspace.app.webui.submit.JSPStepManager" %>
-<%@ page import="org.dspace.identifier.DOIIdentifierProvider" %>
-<%@ page import="java.util.Iterator" %>
-<%@ page import="org.dspace.handle.HandleManager" %>
+<%@ page import="org.dspace.identifier.factory.IdentifierServiceFactory" %>
+<%@ page import="org.dspace.identifier.Handle" %>
+<%@ page import="org.dspace.identifier.service.IdentifierService" %>
+<%@ page import="org.dspace.services.factory.DSpaceServicesFactory" %>
 
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.List"%>
+<%@ page import="java.util.LinkedList" %>
 
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -58,7 +48,7 @@
     // get the item
     Item item = subInfo.getSubmissionItem().getItem();
 
-    String showIdentifiers = ConfigurationManager.getProperty("webui.submission.list-identifiers");
+    String showIdentifiers = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("webui.submission.list-identifiers");
     if (StringUtils.isEmpty(showIdentifiers))
     {
         showIdentifiers = "all";
@@ -72,7 +62,9 @@
         showDOIs =true;
         showHandles = true;
         showOtherIdentifiers = true;
-    } else {
+    } 
+    else 
+    {
         if (StringUtils.containsIgnoreCase(showIdentifiers, "doi"))
         {
             showDOIs = true;
@@ -93,8 +85,9 @@
     String handle = null;
     List<String> otherIdentifiers = new LinkedList<String>();
 
-    // retrieve the identifierService to load available identifierss
-    IdentifierService identifierService = new DSpace().getSingletonService(IdentifierService.class);
+    // retrieve the identifierService to load available identifiers
+    IdentifierService identifierService = IdentifierServiceFactory.getInstance().getIdentifierService();
+    
     if (identifierService != null)
     {
         try
@@ -145,14 +138,16 @@
         {
             try
             {
-                doi = DOI.DOIToExternalForm(doi);
-            } catch (Exception ex) {
+                doi = IdentifierServiceFactory.getInstance().getDOIService().DOIToExternalForm(doi);
+            } 
+            catch (Exception ex)
+            {
                 // nothing to do here
             }
         }
         if (!StringUtils.isEmpty(handle))
         {
-            handle = HandleManager.getCanonicalForm(handle);
+            handle = HandleServiceFactory.getInstance().getHandleService().getCanonicalForm(handle);
         }
     }
 
